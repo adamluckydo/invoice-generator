@@ -1,0 +1,14 @@
+# Data files (contain personal info and state)
+data/
+
+# Generated PDFs
+*.pdf
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# macOS
+.DS_Store

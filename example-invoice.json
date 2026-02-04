@@ -1,0 +1,21 @@
+{
+  "title": "Invoice for NSM Relational Dojo Facilitation",
+  "date": "November 10, 2025",
+  "from": {
+    "name": "Adam Luck",
+    "email": "adamluckydo@gmail.com"
+  },
+  "to": {
+    "name": "Nervous System Mastery (Curious Humans LLC)"
+  },
+  "items": [
+    {
+      "service": "Relational Dojo Pod Facilitation (4 weeks)",
+      "date": "Oct 13, 2025 - Nov 7, 2025",
+      "quantity": 3,
+      "rate": 375
+    }
+  ],
+  "payment_method": "PayPal – adamluckydo@gmail.com",
+  "notes": ""
+}
