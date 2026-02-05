@@ -189,6 +189,10 @@
                 <label for="invoiceTitle">Invoice Title</label>
                 <input type="text" id="invoiceTitle" placeholder="Invoice for Consulting Services">
             </div>
+            <div class="form-group" style="flex: 0.3;">
+                <label for="invoiceNumber">Invoice # (optional)</label>
+                <input type="text" id="invoiceNumber" placeholder="INV-001">
+            </div>
             <div class="form-group" style="flex: 0.4;">
                 <label for="invoiceDate">Date</label>
                 <input type="text" id="invoiceDate">
@@ -355,6 +359,7 @@
 
         function generatePDF() {
             const title = document.getElementById('invoiceTitle').value || 'Invoice';
+            const invoiceNumber = document.getElementById('invoiceNumber').value;
             const date = document.getElementById('invoiceDate').value;
             const fromName = document.getElementById('fromName').value;
             const fromEmail = document.getElementById('fromEmail').value;
@@ -371,6 +376,16 @@
 
             const doc = new jsPDF();
             let y = 20;
+
+            // Invoice number (if provided)
+            if (invoiceNumber) {
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Invoice #: ', 20, y);
+                doc.setFont('helvetica', 'normal');
+                doc.text(invoiceNumber, 42, y);
+                y += 6;
+            }
 
             // Title
             doc.setFontSize(16);
@@ -463,6 +478,7 @@
         function clearForm() {
             if (confirm('Clear all fields?')) {
                 document.getElementById('invoiceTitle').value = '';
+                document.getElementById('invoiceNumber').value = '';
                 document.getElementById('fromName').value = '';
                 document.getElementById('fromEmail').value = '';
                 document.getElementById('toName').value = '';
@@ -481,6 +497,7 @@
         function saveToStorage() {
             const data = {
                 title: document.getElementById('invoiceTitle').value,
+                invoiceNumber: document.getElementById('invoiceNumber').value,
                 fromName: document.getElementById('fromName').value,
                 fromEmail: document.getElementById('fromEmail').value,
                 toName: document.getElementById('toName').value,
@@ -499,6 +516,7 @@
             try {
                 const data = JSON.parse(saved);
                 document.getElementById('invoiceTitle').value = data.title || '';
+                document.getElementById('invoiceNumber').value = data.invoiceNumber || '';
                 document.getElementById('fromName').value = data.fromName || '';
                 document.getElementById('fromEmail').value = data.fromEmail || '';
                 document.getElementById('toName').value = data.toName || '';

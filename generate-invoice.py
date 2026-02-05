@@ -63,9 +63,9 @@ LOGO_FILE = SCRIPT_DIR / "logo.png"  # TODO: Add your logo here
 # ============================================================================
 
 DEFAULTS = {
-    "from_name": "",  # Your name
-    "from_email": "",  # Your email
-    "payment_method": "",  # e.g., "PayPal – you@example.com"
+    "from_name": "Adam Luck",
+    "from_email": "adamluckydo@gmail.com",
+    "payment_method": "PayPal – adamluckydo@gmail.com",
     "invoice_prefix": "INV",  # Invoice numbers will be INV-001, INV-002, etc.
 }
 
