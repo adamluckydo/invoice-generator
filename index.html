@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        h1 {
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 1.1em;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            flex: 1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+
+        .items-table th {
+            text-align: left;
+            padding: 8px;
+            background: #f8f8f8;
+            font-weight: 500;
+            font-size: 0.85em;
+            color: #555;
+        }
+
+        .items-table td {
+            padding: 5px;
+        }
+
+        .items-table input {
+            padding: 8px;
+        }
+
+        .items-table .col-service { width: 35%; }
+        .items-table .col-date { width: 25%; }
+        .items-table .col-qty { width: 10%; }
+        .items-table .col-rate { width: 15%; }
+        .items-table .col-total { width: 10%; text-align: right; padding-right: 10px; }
+        .items-table .col-action { width: 5%; }
+
+        .row-total {
+            font-weight: 600;
+            padding: 10px 10px 10px 0;
+            text-align: right;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .grand-total {
+            font-size: 1.2em;
+            font-weight: 600;
+            text-align: right;
+            padding: 15px 0;
+            border-top: 2px solid #333;
+            margin-top: 10px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #888;
+            font-size: 0.85em;
+        }
+
+        footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Invoice Generator</h1>
+    <p class="subtitle">Generate professional PDF invoices in your browser</p>
+
+    <div class="card">
+        <h2>Invoice Details</h2>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="invoiceTitle">Invoice Title</label>
+                <input type="text" id="invoiceTitle" placeholder="Invoice for Consulting Services">
+            </div>
+            <div class="form-group" style="flex: 0.4;">
+                <label for="invoiceDate">Date</label>
+                <input type="text" id="invoiceDate">
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>From (Your Info)</h2>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="fromName">Name</label>
+                <input type="text" id="fromName" placeholder="Your Name">
+            </div>
+            <div class="form-group">
+                <label for="fromEmail">Email</label>
+                <input type="email" id="fromEmail" placeholder="you@example.com">
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>To (Client)</h2>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="toName">Client Name</label>
+                <input type="text" id="toName" placeholder="Client or Company Name">
+            </div>
+            <div class="form-group">
+                <label for="toCompany">Additional Line (optional)</label>
+                <input type="text" id="toCompany" placeholder="Department, LLC, etc.">
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Line Items</h2>
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th class="col-service">Service</th>
+                    <th class="col-date">Date</th>
+                    <th class="col-qty">Qty</th>
+                    <th class="col-rate">Rate</th>
+                    <th class="col-total">Total</th>
+                    <th class="col-action"></th>
+                </tr>
+            </thead>
+            <tbody id="itemsBody">
+                <!-- Items added here -->
+            </tbody>
+        </table>
+        <button class="btn btn-secondary btn-sm" onclick="addItem()">+ Add Item</button>
+        <div class="grand-total">
+            Total: $<span id="grandTotal">0</span>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Payment</h2>
+        <div class="form-group">
+            <label for="paymentMethod">Payment Method</label>
+            <input type="text" id="paymentMethod" placeholder="PayPal – you@example.com">
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Notes (optional)</h2>
+        <div class="form-group">
+            <textarea id="notes" rows="2" placeholder="Any additional notes..."></textarea>
+        </div>
+    </div>
+
+    <div class="actions">
+        <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
+        <button class="btn btn-primary" onclick="generatePDF()">Generate PDF</button>
+    </div>
+
+    <footer>
+        <a href="https://github.com/adamluckydo/invoice-generator">View on GitHub</a> ·
+        Also available as a <a href="https://github.com/adamluckydo/invoice-generator#usage">command-line tool</a>
+    </footer>
+
+    <script>
+        const { jsPDF } = window.jspdf;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set today's date
+            const today = new Date();
+            const dateStr = today.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            document.getElementById('invoiceDate').value = dateStr;
+
+            // Add first item row
+            addItem();
+
+            // Load from localStorage if available
+            loadFromStorage();
+        });
+
+        function addItem() {
+            const tbody = document.getElementById('itemsBody');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><input type="text" class="item-service" placeholder="Description"></td>
+                <td><input type="text" class="item-date" placeholder="Jan 1-15, 2025"></td>
+                <td><input type="number" class="item-qty" value="1" min="1" onchange="updateTotals()"></td>
+                <td><input type="number" class="item-rate" placeholder="0" min="0" step="0.01" onchange="updateTotals()"></td>
+                <td class="row-total">$0</td>
+                <td><button class="btn btn-danger" onclick="removeItem(this)">×</button></td>
+            `;
+            tbody.appendChild(row);
+        }
+
+        function removeItem(btn) {
+            const tbody = document.getElementById('itemsBody');
+            if (tbody.children.length > 1) {
+                btn.closest('tr').remove();
+                updateTotals();
+            }
+        }
+
+        function updateTotals() {
+            const rows = document.querySelectorAll('#itemsBody tr');
+            let grandTotal = 0;
+
+            rows.forEach(row => {
+                const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+                const rate = parseFloat(row.querySelector('.item-rate').value) || 0;
+                const total = qty * rate;
+                row.querySelector('.row-total').textContent = '$' + total.toFixed(total % 1 === 0 ? 0 : 2);
+                grandTotal += total;
+            });
+
+            document.getElementById('grandTotal').textContent = grandTotal.toFixed(grandTotal % 1 === 0 ? 0 : 2);
+            saveToStorage();
+        }
+
+        function getItems() {
+            const rows = document.querySelectorAll('#itemsBody tr');
+            const items = [];
+
+            rows.forEach(row => {
+                const service = row.querySelector('.item-service').value;
+                const date = row.querySelector('.item-date').value;
+                const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+                const rate = parseFloat(row.querySelector('.item-rate').value) || 0;
+
+                if (service || rate > 0) {
+                    items.push({ service, date, qty, rate, total: qty * rate });
+                }
+            });
+
+            return items;
+        }
+
+        function formatCurrency(num) {
+            return '$' + num.toFixed(num % 1 === 0 ? 0 : 2);
+        }
+
+        function generatePDF() {
+            const title = document.getElementById('invoiceTitle').value || 'Invoice';
+            const date = document.getElementById('invoiceDate').value;
+            const fromName = document.getElementById('fromName').value;
+            const fromEmail = document.getElementById('fromEmail').value;
+            const toName = document.getElementById('toName').value;
+            const toCompany = document.getElementById('toCompany').value;
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const notes = document.getElementById('notes').value;
+            const items = getItems();
+
+            if (items.length === 0) {
+                alert('Please add at least one line item');
+                return;
+            }
+
+            const doc = new jsPDF();
+            let y = 20;
+
+            // Title
+            doc.setFontSize(16);
+            doc.setFont('helvetica', 'bold');
+            doc.text(title, 20, y);
+            y += 8;
+
+            // Date
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            doc.text('Date: ' + date, 20, y);
+            y += 12;
+
+            // From
+            doc.setFont('helvetica', 'bold');
+            doc.text('From:', 20, y);
+            doc.setFont('helvetica', 'normal');
+            y += 5;
+            if (fromName) { doc.text(fromName, 20, y); y += 5; }
+            if (fromEmail) { doc.text(fromEmail, 20, y); y += 5; }
+            y += 5;
+
+            // To
+            doc.setFont('helvetica', 'bold');
+            doc.text('To:', 20, y);
+            doc.setFont('helvetica', 'normal');
+            y += 5;
+            if (toName) { doc.text(toName, 20, y); y += 5; }
+            if (toCompany) { doc.text(toCompany, 20, y); y += 5; }
+            y += 10;
+
+            // Items table
+            const tableData = items.map(item => [
+                item.service,
+                item.date,
+                item.qty.toString(),
+                formatCurrency(item.rate),
+                formatCurrency(item.total)
+            ]);
+
+            const grandTotal = items.reduce((sum, item) => sum + item.total, 0);
+            tableData.push(['Total', '', '', '', formatCurrency(grandTotal)]);
+
+            doc.autoTable({
+                startY: y,
+                head: [['Services', 'Date', 'Quantity', 'Rate', 'Total']],
+                body: tableData,
+                theme: 'grid',
+                headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], fontStyle: 'bold' },
+                styles: { fontSize: 10 },
+                columnStyles: {
+                    0: { cellWidth: 60 },
+                    1: { cellWidth: 35 },
+                    2: { cellWidth: 20 },
+                    3: { cellWidth: 25 },
+                    4: { cellWidth: 25 }
+                },
+                didParseCell: function(data) {
+                    if (data.row.index === tableData.length - 1) {
+                        data.cell.styles.fontStyle = 'bold';
+                    }
+                }
+            });
+
+            y = doc.lastAutoTable.finalY + 10;
+
+            // Payment method
+            if (paymentMethod) {
+                doc.setFont('helvetica', 'bold');
+                doc.text('Payment Method: ', 20, y);
+                doc.setFont('helvetica', 'normal');
+                doc.text(paymentMethod, 55, y);
+                y += 10;
+            }
+
+            // Notes
+            if (notes) {
+                doc.setFont('helvetica', 'bold');
+                doc.text('Notes: ', 20, y);
+                doc.setFont('helvetica', 'normal');
+                const splitNotes = doc.splitTextToSize(notes, 160);
+                doc.text(splitNotes, 38, y);
+            }
+
+            // Save
+            const safeTitle = title.replace(/[^a-zA-Z0-9 \-_]/g, '').replace(/ /g, '-');
+            doc.save(safeTitle + '.pdf');
+        }
+
+        function clearForm() {
+            if (confirm('Clear all fields?')) {
+                document.getElementById('invoiceTitle').value = '';
+                document.getElementById('fromName').value = '';
+                document.getElementById('fromEmail').value = '';
+                document.getElementById('toName').value = '';
+                document.getElementById('toCompany').value = '';
+                document.getElementById('paymentMethod').value = '';
+                document.getElementById('notes').value = '';
+
+                const tbody = document.getElementById('itemsBody');
+                tbody.innerHTML = '';
+                addItem();
+                updateTotals();
+                localStorage.removeItem('invoiceData');
+            }
+        }
+
+        function saveToStorage() {
+            const data = {
+                title: document.getElementById('invoiceTitle').value,
+                fromName: document.getElementById('fromName').value,
+                fromEmail: document.getElementById('fromEmail').value,
+                toName: document.getElementById('toName').value,
+                toCompany: document.getElementById('toCompany').value,
+                paymentMethod: document.getElementById('paymentMethod').value,
+                notes: document.getElementById('notes').value,
+                items: getItems()
+            };
+            localStorage.setItem('invoiceData', JSON.stringify(data));
+        }
+
+        function loadFromStorage() {
+            const saved = localStorage.getItem('invoiceData');
+            if (!saved) return;
+
+            try {
+                const data = JSON.parse(saved);
+                document.getElementById('invoiceTitle').value = data.title || '';
+                document.getElementById('fromName').value = data.fromName || '';
+                document.getElementById('fromEmail').value = data.fromEmail || '';
+                document.getElementById('toName').value = data.toName || '';
+                document.getElementById('toCompany').value = data.toCompany || '';
+                document.getElementById('paymentMethod').value = data.paymentMethod || '';
+                document.getElementById('notes').value = data.notes || '';
+
+                if (data.items && data.items.length > 0) {
+                    const tbody = document.getElementById('itemsBody');
+                    tbody.innerHTML = '';
+                    data.items.forEach(item => {
+                        addItem();
+                        const row = tbody.lastElementChild;
+                        row.querySelector('.item-service').value = item.service || '';
+                        row.querySelector('.item-date').value = item.date || '';
+                        row.querySelector('.item-qty').value = item.qty || 1;
+                        row.querySelector('.item-rate').value = item.rate || '';
+                    });
+                    updateTotals();
+                }
+            } catch (e) {
+                console.error('Failed to load saved data', e);
+            }
+        }
+
+        // Auto-save on input
+        document.querySelectorAll('input, textarea').forEach(el => {
+            el.addEventListener('input', saveToStorage);
+        });
+    </script>
+</body>
+</html>
