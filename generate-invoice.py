@@ -17,14 +17,14 @@ Usage:
         --item "Consulting,Jan 1-15,10,150"
 
     # Use a saved client profile
-    python generate-invoice.py --client nsm --item "Facilitation,Jan 2025,2,375"
+    python generate-invoice.py --client acme --item "Consulting,Jan 2025,2,150"
 
     # List saved clients
     python generate-invoice.py --list-clients
 
     # Save a new client
-    python generate-invoice.py --save-client nsm --to "Nervous System Mastery" \
-        --to-company "Curious Humans LLC"
+    python generate-invoice.py --save-client acme --to "Jane Smith" \
+        --to-company "Acme Corp"
 
 Requirements:
     pip install reportlab
@@ -59,15 +59,25 @@ LOGO_FILE = SCRIPT_DIR / "logo.png"  # TODO: Add your logo here
 
 
 # ============================================================================
-# DEFAULT VALUES (edit these to match your info)
+# DEFAULT VALUES
+# Put your own info in data/config.json (git-ignored), e.g.
+#   {"from_name": "Your Name", "from_email": "you@example.com",
+#    "payment_method": "PayPal – you@example.com"}
+# Any key there overrides the placeholder below.
 # ============================================================================
 
+CONFIG_FILE = DATA_DIR / "config.json"
+
 DEFAULTS = {
-    "from_name": "Adam Luck",
-    "from_email": "adamluckydo@gmail.com",
-    "payment_method": "PayPal – adamluckydo@gmail.com",
+    "from_name": "Your Name",
+    "from_email": "you@example.com",
+    "payment_method": "PayPal – you@example.com",
     "invoice_prefix": "INV",  # Invoice numbers will be INV-001, INV-002, etc.
 }
+
+if CONFIG_FILE.exists():
+    with open(CONFIG_FILE) as f:
+        DEFAULTS.update(json.load(f))
 
 
 # ============================================================================

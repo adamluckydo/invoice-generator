@@ -73,11 +73,19 @@ To add a logo, place a file named `logo.png` in this directory. Recommended size
 
 ### Customization
 
-Edit the `DEFAULTS` dict at the top of `generate-invoice.py` to set your default name, email, payment method, and invoice prefix.
+Create `data/config.json` to set your default name, email, payment method, and invoice prefix. It's git-ignored, so your details stay out of the repo. Any key you leave out falls back to the placeholder in `DEFAULTS` at the top of `generate-invoice.py`.
+
+```json
+{
+  "from_name": "Your Name",
+  "from_email": "you@example.com",
+  "payment_method": "PayPal – you@example.com"
+}
+```
 
 ## Files
 
 - `index.html` — Web app (GitHub Pages)
 - `generate-invoice.py` — CLI script
 - `example-invoice.json` — Example invoice data
-- `data/` — Stores client profiles and invoice counter (CLI only, created automatically)
+- `data/` — Your config, client profiles, and invoice counter (CLI only, git-ignored)
